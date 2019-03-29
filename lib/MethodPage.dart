@@ -12,8 +12,8 @@ class MethodPage extends StatefulWidget {
   State<StatefulWidget> createState() {
     return new _MethodPageState(appBarTitle);
   }
-
 }
+
 enum TtsState { playing, stopped }
 
 class _MethodPageState extends State<MethodPage> {
@@ -22,10 +22,9 @@ class _MethodPageState extends State<MethodPage> {
   TtsState ttsState = TtsState.stopped;
   final controller = ScrollController();
   double cWidth = 0.0;
-  double itemHeight = 28.0;
-  double itemsCount = 20;
+  double itemHeight = 25.0;
+  double itemsCount = 8;
   double screenWidth;
-
 
   _MethodPageState(String appBarTitle) {
     this.appBarTitle = appBarTitle;
@@ -72,6 +71,15 @@ class _MethodPageState extends State<MethodPage> {
     });
   }
 
+  void readContent(List content) {
+    String strContent = "";
+    for(int i = 0; i < content.length; i++){
+      strContent = strContent + content[i];
+    }
+
+    _speak(strContent);
+  }
+
   Future _speak(String step) async {
     var result = await flutterTts.speak(step);
     if (result == 1) setState(() => ttsState = TtsState.playing);
@@ -82,17 +90,18 @@ class _MethodPageState extends State<MethodPage> {
     if (result == 1) setState(() => ttsState = TtsState.stopped);
   }
 
-
   @override
   Widget build(BuildContext context) {
-
     List<String> methodSteps = new List();
     methodSteps.add("Şimdi hastayı yatar pozisyona getiriniz.");
-    methodSteps.add(
-        "Bundan sonra yatar pozisyonda hastayı tedavi etmeye başlayabiliriz.");
-    methodSteps.add(
-        "Şimdi ise boğulmakta olan hastaya yetkililer gelene kadar sûni teneffüs yapmaya devam etmelisiniz.");
-
+    methodSteps.add("Bundan sonra yatar pozisyonda hastayı tedavi etmeye başlayabiliriz.");
+    methodSteps.add("Şimdi ise boğulmakta olan hastaya yetkililer gelene kadar sûni teneffüs yapmaya devam etmelisiniz.");
+    methodSteps.add("Şimdi hastayı yatar pozisyona getiriniz.");
+    methodSteps.add("Bundan sonra yatar pozisyonda hastayı tedavi etmeye başlayabiliriz.");
+    methodSteps.add("Şimdi ise boğulmakta olan hastaya yetkililer gelene kadar sûni teneffüs yapmaya devam etmelisiniz.");
+    methodSteps.add("Şimdi hastayı yatar pozisyona getiriniz.");
+    methodSteps.add("Bundan sonra yatar pozisyonda hastayı tedavi etmeye başlayabiliriz.");
+    methodSteps.add("Şimdi ise boğulmakta olan hastaya yetkililer gelene kadar sûni teneffüs yapmaya devam etmelisiniz.");
 
     screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
@@ -100,69 +109,31 @@ class _MethodPageState extends State<MethodPage> {
         title: Text(appBarTitle),
       ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Container(
               height: 12.0,
               width: cWidth,
-              color: Colors.green
+              color: Colors.redAccent
           ),
           Expanded(
-            child: SingleChildScrollView(
-              controller: controller,
-              child: Column(
-                children: <Widget>[
-                  Container(
-                    padding: EdgeInsets.only(top: 8.0, left: 8.0),
-                    child: Text(
-                      "• here is a content going on to the next line hopefully",
-                      style: TextStyle(fontSize: 60.0),
+              child: ListView.builder(
+                controller: controller,
+                itemCount: methodSteps.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(
+                        "$index - " + methodSteps[index],
+                        style: TextStyle(fontSize: 25.0),
                     ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.only(top: 8.0, left: 8.0),
-                    child: Text(
-                      "• here is a content going on to the next line hopefully",
-                      style: TextStyle(fontSize: 60.0),
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.all(40.0),
-                    child: Image.asset(
-                      'assets/pic.png',
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.only(top: 8.0, left: 8.0, bottom: 15.0),
-                    child: Text(
-                      "• here is a content going on to the next line hopefully",
-                      style: TextStyle(fontSize: 60.0),
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.only(top: 8.0, left: 8.0, bottom: 15.0),
-                    child: Text(
-                      "• here is a content going on to the next line hopefully",
-                      style: TextStyle(fontSize: 60.0),
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.only(top: 8.0, left: 8.0, bottom: 15.0),
-                    child: Text(
-                      "• here is a content going on to the next line hopefully",
-                      style: TextStyle(fontSize: 60.0),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+                  );
+                },
+              )),
         ],
       ),
       floatingActionButton: Container(
         child: FloatingActionButton(
-          onPressed: () =>
-              _speak(
-                  "Şimdi, kazâzedenin başını hafifçe kaldırmalısınız ki hasta nefes almakta güçlük çekmesin."),
+          onPressed: () => readContent(methodSteps),
           child: Icon(Icons.headset),
           elevation: 20.0,
         ),
@@ -176,7 +147,6 @@ class _MethodPageState extends State<MethodPage> {
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
     );
   }
-
 }
 
 /**

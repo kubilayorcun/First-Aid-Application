@@ -45,13 +45,14 @@ class _MethodPageState extends State<MethodPage> {
 
   @override
   void dispose() {
+    super.dispose();
     controller.removeListener(onScroll);
   }
 
   initTts() {
     flutterTts = new FlutterTts();
     flutterTts.setLanguage("tr-TR");
-    flutterTts.setVolume(10.0);
+    flutterTts.setVolume(1.0);
     flutterTts.setStartHandler(() {
       setState(() {
         ttsState = TtsState.playing;

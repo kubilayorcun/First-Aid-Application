@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../SubMethodsPage.dart';
 import '../MethodPage.dart';
+import 'package:firstaidproject/DatabaseHelper.dart';
+
 class SubMethodListItem extends StatefulWidget {
   String categoryName;
 
@@ -14,9 +15,13 @@ class SubMethodListItem extends StatefulWidget {
   }
 }
 
+
+
 class _SubMethodListItemState extends State<SubMethodListItem> {
+
   var _favIcon;
   String categoryName;
+  final dbHelper = DatabaseHelper.instance;
 
   _SubMethodListItemState(String categoryName) {
     this.categoryName = categoryName;
@@ -65,13 +70,37 @@ class _SubMethodListItemState extends State<SubMethodListItem> {
     );
   }
 
+  void _insert(String name) async {
+    Map<String, dynamic> row = {
+      DatabaseHelper.columnName: name
+    };
+
+    await dbHelper.insert(row);
+  }
+
+
+  void _query() async {
+    final allRows = await dbHelper.queryAllRows();
+    allRows.forEach((row) => print(row));
+  }
+
   void _onClickItem(BuildContext context) {
     Navigator.push(context,
         MaterialPageRoute(builder: (context) => MethodPage(categoryName)));
   }
+
   void _onClickFavIcon() {
     setState(() {
       _favIcon = (_favIcon==Icons.star_border)?Icons.star:Icons.star_border;
     });
+    if(_favIcon == Icons.star_border){
+      print("remove : " + categoryName);
+      // TODO: Means that user wants to remove the item from favourites (which is again the persistent data on user's phone.)
+    }
+    else if(_favIcon == Icons.star){
+      print("add : " + categoryName);
+      _insert(categoryName);
+      // TODO: Add to favourites tab list. (which is a persistent data on user's phones)
+    }
   }
 }

@@ -13,6 +13,8 @@ environment:
   sdk: ">=2.0.0-dev.68.0 <3.0.0"
 
 dependencies:
+  sqflite: ^1.0.0
+  path_provider: ^0.4.1
   flutter:
     sdk: flutter
 

@@ -9,11 +9,6 @@ class FavouritesTab extends StatefulWidget {
     return FavouritesTabState();
 
   }
-
-
-
-
-
 }
 
 class FavouritesTabState extends State<FavouritesTab>{
@@ -28,7 +23,7 @@ class FavouritesTabState extends State<FavouritesTab>{
     final allRows = await dbHelper.queryAllRows();
     allRows.forEach((row) {
       tempList = row.values.toList();
-      print(tempList[1]);
+      //print(tempList[1]);
       favList.add(tempList[1]);
     });
 
@@ -39,7 +34,6 @@ class FavouritesTabState extends State<FavouritesTab>{
     super.initState();
     favList.clear();
     _query();
-    print(favList);
   }
 
   @override
@@ -47,7 +41,7 @@ class FavouritesTabState extends State<FavouritesTab>{
     print(favList);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Favourites'),
+        title: Text("Favoriler"),
       ),
       body: Center(
         child: Column(

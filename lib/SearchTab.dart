@@ -53,6 +53,9 @@ class SearchTabState extends State<SearchTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text("Search"),
+      ),
       body: Center(
         child: Column(
           children: <Widget>[

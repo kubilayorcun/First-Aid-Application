@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import './CustomWidgets/ListItem.dart';
-
+import 'FirebaseHelper.dart';
 class MethodListTab extends StatelessWidget {
 
   @override
@@ -15,19 +15,25 @@ class MethodListTab extends StatelessWidget {
 
 
     ];
+    FirebaseHelper firebaseHelper = FirebaseHelper();
+    
     return Scaffold(
+        appBar: AppBar(
+          title: Text("İlk Yardım"),
+        ),
         body: Center(
-            child: ListView.separated(
-              padding: EdgeInsets.all(8.0),
-              itemCount: categories.length,
-              itemBuilder: (BuildContext context, int index) {
-                return categories[index];
-              },
-              separatorBuilder: (BuildContext context, int index) {
-                return Divider(color: Colors.black);
-              },
-            )
+            child: firebaseHelper.buildBody(context)
         )
     );
   }
 }
+/*ListView.separated(
+padding: EdgeInsets.all(8.0),
+itemCount: categories.length,
+itemBuilder: (BuildContext context, int index) {
+return categories[index];
+},
+separatorBuilder: (BuildContext context, int index) {
+return Divider(color: Colors.black);
+},
+)*/

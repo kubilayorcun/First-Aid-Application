@@ -36,8 +36,13 @@ class _SubMethodListItemState extends State<SubMethodListItem> {
   _SubMethodListItemState(String categoryName, List favList,bool isFav) {
     this.categoryName = categoryName;
     this.favList = favList;
-    this.isFav = isFav;
-    _favIcon = (isFav)?Icons.star:Icons.star_border;
+    if(favList.indexWhere((subListItem) => subListItem.categoryName.startsWith(categoryName))==-1) {
+      this.isFav = false;
+      _favIcon = Icons.star_border;
+    } else {
+      this.isFav = true;
+      _favIcon = Icons.star;
+    }
   }
 
   @override
@@ -124,7 +129,7 @@ class _SubMethodListItemState extends State<SubMethodListItem> {
       } else {
         _favIcon = Icons.star_border;
         isFav = false;
-        favList.remove(SubMethodListItem(categoryName, favList,!isFav));
+        favList.removeAt(favList.indexWhere((subListItem) => subListItem.categoryName.startsWith(categoryName)));
       }
 
     });

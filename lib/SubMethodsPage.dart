@@ -20,7 +20,6 @@ class SubMethodsPage extends StatefulWidget {
 class _SubMethodsPageState extends State<SubMethodsPage> {
   String categoryName;
   List<SubMethodListItem> favList;
-  List<String> subCategories = ["1. Madde", "2.Madde", "3.Madde"];
 
   _SubMethodsPageState(String categoryName,List<SubMethodListItem> favList) {
     this.favList = favList;

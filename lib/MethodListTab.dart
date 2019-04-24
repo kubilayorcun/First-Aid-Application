@@ -20,7 +20,6 @@ class MethodListTab extends StatelessWidget {
               stream: Firestore.instance.collection('CategoryNames').snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) return LinearProgressIndicator();
-                print(snapshot.data.documents[2].data.values.toList());
                 return ListView.separated(
                   padding: EdgeInsets.all(8.0),
                   itemCount: snapshot.data.documents.length,

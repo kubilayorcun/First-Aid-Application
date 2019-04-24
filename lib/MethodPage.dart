@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 class MethodPage extends StatefulWidget {
   String appBarTitle;
-
-  MethodPage(String appBarTitle) {
+  String baseCategory;
+  MethodPage(String appBarTitle, String baseCategory) {
     this.appBarTitle = appBarTitle;
+    this.baseCategory = baseCategory;
   }
 
   @override
   State<StatefulWidget> createState() {
-    return new _MethodPageState(appBarTitle);
+    return new _MethodPageState(appBarTitle,baseCategory);
   }
 }
 
@@ -18,6 +19,7 @@ enum TtsState { playing, stopped }
 
 class _MethodPageState extends State<MethodPage> {
   String appBarTitle;
+  String baseCategory;
   FlutterTts flutterTts;
   TtsState ttsState = TtsState.stopped;
   final controller = ScrollController();
@@ -26,8 +28,9 @@ class _MethodPageState extends State<MethodPage> {
   double itemsCount = 8;
   double screenWidth;
 
-  _MethodPageState(String appBarTitle) {
+  _MethodPageState(String appBarTitle,  String baseCategory) {
     this.appBarTitle = appBarTitle;
+    this.baseCategory = baseCategory;
   }
 
   @override
@@ -93,6 +96,7 @@ class _MethodPageState extends State<MethodPage> {
 
   @override
   Widget build(BuildContext context) {
+    print(baseCategory);
     List<String> methodSteps = new List();
     methodSteps.add("Şimdi hastayı yatar pozisyona getiriniz.");
     methodSteps.add("Bundan sonra yatar pozisyonda hastayı tedavi etmeye başlayabiliriz.");
@@ -118,18 +122,24 @@ class _MethodPageState extends State<MethodPage> {
               color: Colors.redAccent
           ),
           Expanded(
-              child: ListView.builder(
-                controller: controller,
-                itemCount: methodSteps.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(
-                        "$index - " + methodSteps[index],
-                        style: TextStyle(fontSize: 25.0),
-                    ),
+              child: StreamBuilder<DocumentSnapshot>(
+                stream: Firestore.instance.collection(baseCategory).document(appBarTitle).snapshots(),
+                builder: (context , snapshot) {
+                  if(!snapshot.hasData) return LinearProgressIndicator();
+                  return ListView.builder(
+                    controller: controller,
+                    itemCount: snapshot.data["Content"].length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text(
+                          "$index - "+ snapshot.data["Content"][index],
+                          style: TextStyle(fontSize: 25.0),
+                        ),
+                      );
+                    },
                   );
                 },
-              )),
+              ),),
         ],
       ),
       floatingActionButton: Container(
@@ -152,5 +162,8 @@ class _MethodPageState extends State<MethodPage> {
 
 /**
  *
+
+
+
 
  * **/

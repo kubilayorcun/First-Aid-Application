@@ -45,7 +45,7 @@ class FavouritesTabState extends State<FavouritesTab>{
                   padding: EdgeInsets.all(8.0),
                   itemBuilder: (BuildContext context , int index){
                     return ListTile(
-                      title: SubMethodListItem(favList[index].getCategoryName(),favList,favList[index].isFav),
+                      title: SubMethodListItem(favList[index].getCategoryName(),favList,favList[index].isFav,favList[index].getBaseCategoryName()),
                     );
                   }
               ),

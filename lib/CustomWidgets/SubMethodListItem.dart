@@ -6,20 +6,26 @@ class SubMethodListItem extends StatefulWidget {
   String categoryName;
   List favList;
   bool isFav;
+  String baseCategory;
 
-  SubMethodListItem(String categoryName,List favList,bool isFav) {
+  SubMethodListItem(String categoryName,List favList,bool isFav,  String baseCategory) {
     this.categoryName = categoryName;
     this.favList = favList;
     this.isFav = isFav;
+    this.baseCategory = baseCategory;
   }
 
   String getCategoryName() {
     return categoryName;
   }
 
+  String getBaseCategoryName() {
+    return baseCategory;
+  }
+
   @override
   State<StatefulWidget> createState() {
-    return _SubMethodListItemState(categoryName,favList,isFav);
+    return _SubMethodListItemState(categoryName,favList,isFav,baseCategory);
   }
 }
 
@@ -31,9 +37,12 @@ class _SubMethodListItemState extends State<SubMethodListItem> {
   String categoryName;
   List favList;
   bool isFav;
+  String baseCategory;
+
   final dbHelper = DatabaseHelper.instance;
 
-  _SubMethodListItemState(String categoryName, List favList,bool isFav) {
+  _SubMethodListItemState(String categoryName, List favList,bool isFav,  String baseCategory) {
+    this.baseCategory = baseCategory;
     this.categoryName = categoryName;
     this.favList = favList;
     if(favList.indexWhere((subListItem) => subListItem.categoryName.startsWith(categoryName))==-1) {
@@ -87,9 +96,10 @@ class _SubMethodListItemState extends State<SubMethodListItem> {
     );
   }
 
-  void _insert(String name) async {
+  void _insert(String name, String baseName) async {
     Map<String, dynamic> row = {
-      DatabaseHelper.columnName: name
+      DatabaseHelper.columnName: name,
+      DatabaseHelper.baseColumnName: baseName
     };
 
     await dbHelper.insert(row);
@@ -111,7 +121,7 @@ class _SubMethodListItemState extends State<SubMethodListItem> {
 
   void _onClickItem(BuildContext context) {
     Navigator.push(context,
-        MaterialPageRoute(builder: (context) => MethodPage(categoryName)));
+        MaterialPageRoute(builder: (context) => MethodPage(categoryName,baseCategory)));
   }
 
   @override
@@ -125,7 +135,7 @@ class _SubMethodListItemState extends State<SubMethodListItem> {
       if(_favIcon==Icons.star_border) {
         _favIcon = Icons.star;
         isFav = true;
-        favList.add(SubMethodListItem(categoryName,favList,isFav));
+        favList.add(SubMethodListItem(categoryName,favList,isFav,baseCategory));
       } else {
         _favIcon = Icons.star_border;
         isFav = false;
@@ -140,7 +150,7 @@ class _SubMethodListItemState extends State<SubMethodListItem> {
     }
     else if(isFav){
       print("add : " + categoryName);
-      _insert(categoryName);
+      _insert(categoryName,baseCategory);
       // TODO: Add to favourites tab list. (which is a persistent data on user's phones)
     }
   }

@@ -1,23 +1,30 @@
 import 'package:flutter/material.dart';
-
+import 'CustomWidgets/SubMethodListItem.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'CustomWidgets/ListItem.dart';
 class SearchTab extends StatefulWidget {
-  final String title;
-
-  SearchTab({Key key, this.title}) : super(key: key);
+  List<SubMethodListItem> favList;
+  SearchTab(List<SubMethodListItem> favList) {
+   this.favList = favList;
+  }
   String searchText = "";
   Text text;
-  var categories = [Text("some"), Text("some"), Text("some")];
-  final items = List<String>.generate(10000, (i) => "Item $i");
+  //final items = List<String>.generate(10000, (i) => "Item $i");
+  List<String> items = new List<String>();
 
   @override
-  SearchTabState createState() => new SearchTabState();
+  SearchTabState createState() => new SearchTabState(favList);
 
 }
 
 class SearchTabState extends State<SearchTab> {
   TextEditingController editingController = new TextEditingController();
+  List<SubMethodListItem> favList;
+  SearchTabState(List<SubMethodListItem> favList) {
+    this.favList=favList;
+  }
 
-  final defaultList = List<String>.generate(10000, (i) => "Item $i");
+  final defaultList = List<String>();
   var items = List<String>();
 
   @override
@@ -89,24 +96,31 @@ class SearchTabState extends State<SearchTab> {
               ),
             ),
             Expanded(
-              child:ListView.separated(
-                padding: EdgeInsets.all(8.0),
-                itemCount: items.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Text(items[index]);
-                },
-                separatorBuilder: (BuildContext context, int index) {
-                  return Divider(color: Colors.black);
-                },
-              ),
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: Firestore.instance.collection('CategoryNames').snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) return LinearProgressIndicator();
+                    print(snapshot.data.documents[2].data.values.toList());
+                    return ListView.separated(
+                      padding: EdgeInsets.all(8.0),
+                      itemCount: snapshot.data.documents.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        defaultList.add(snapshot.data.documents[index].data['Name']);
+                        items.add(snapshot.data.documents[index].data['Name']);
+                        return ListItem(items[index],favList);
+                      },
+                      separatorBuilder: (BuildContext context, int index) {
+                        return Divider(color: Colors.black);
+                      },
+                    );
+                  },
+                )
             )
           ],
         ),
       ),
     );
   }
-
-
 
 
 

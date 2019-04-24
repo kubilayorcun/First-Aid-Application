@@ -41,7 +41,7 @@ class _SubMethodsPageState extends State<SubMethodsPage> {
                   padding: EdgeInsets.all(8.0),
                   itemCount: snapshot.data.documents.length,
                   itemBuilder: (BuildContext context, int index) {
-                    return SubMethodListItem(snapshot.data.documents[index].data['Name'],favList,false);
+                    return SubMethodListItem(snapshot.data.documents[index].data['Name'],favList,false,categoryName);
                   },
                   separatorBuilder: (BuildContext context, int index) {
                     return Divider(color: Colors.black);

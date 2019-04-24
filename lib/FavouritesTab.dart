@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'DatabaseHelper.dart';
+import 'CustomWidgets/SubMethodListItem.dart';
 
 class FavouritesTab extends StatefulWidget {
 
+  List<SubMethodListItem> favList;
+
+  FavouritesTab(List<SubMethodListItem> favList) {
+    this.favList = favList;
+  }
 
   @override
   State<StatefulWidget> createState() {
-    return FavouritesTabState();
-
+    return FavouritesTabState(favList);
   }
 }
 
@@ -17,24 +22,12 @@ class FavouritesTabState extends State<FavouritesTab>{
   final dbHelper = DatabaseHelper.instance;
 
   List tempList = new List();
-  List favList = new List();
+  List<SubMethodListItem> favList;
 
-  void _query() async {
-    final allRows = await dbHelper.queryAllRows();
-    allRows.forEach((row) {
-      tempList = row.values.toList();
-      //print(tempList[1]);
-      favList.add(tempList[1]);
-    });
-
+  FavouritesTabState(List<SubMethodListItem> favList) {
+    this.favList = favList;
   }
 
-  @override
-  void initState() {
-    super.initState();
-    favList.clear();
-    _query();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +45,7 @@ class FavouritesTabState extends State<FavouritesTab>{
                   padding: EdgeInsets.all(8.0),
                   itemBuilder: (BuildContext context , int index){
                     return ListTile(
-                      title: Text(favList[index]),
+                      title: SubMethodListItem(favList[index].getCategoryName(),favList,favList[index].isFav),
                     );
                   }
               ),
@@ -62,5 +55,6 @@ class FavouritesTabState extends State<FavouritesTab>{
       ),
     );
   }
+
 }
 

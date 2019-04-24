@@ -4,14 +4,22 @@ import 'package:firstaidproject/DatabaseHelper.dart';
 
 class SubMethodListItem extends StatefulWidget {
   String categoryName;
+  List favList;
+  bool isFav;
 
-  SubMethodListItem(String categoryName) {
+  SubMethodListItem(String categoryName,List favList,bool isFav) {
     this.categoryName = categoryName;
+    this.favList = favList;
+    this.isFav = isFav;
+  }
+
+  String getCategoryName() {
+    return categoryName;
   }
 
   @override
   State<StatefulWidget> createState() {
-    return _SubMethodListItemState(categoryName);
+    return _SubMethodListItemState(categoryName,favList,isFav);
   }
 }
 
@@ -21,11 +29,15 @@ class _SubMethodListItemState extends State<SubMethodListItem> {
 
   var _favIcon;
   String categoryName;
+  List favList;
+  bool isFav;
   final dbHelper = DatabaseHelper.instance;
 
-  _SubMethodListItemState(String categoryName) {
+  _SubMethodListItemState(String categoryName, List favList,bool isFav) {
     this.categoryName = categoryName;
-    this._favIcon = Icons.star_border;
+    this.favList = favList;
+    this.isFav = isFav;
+    _favIcon = (isFav)?Icons.star:Icons.star_border;
   }
 
   @override
@@ -43,7 +55,7 @@ class _SubMethodListItemState extends State<SubMethodListItem> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Row(children: [
-                  Icon(Icons.access_alarm),
+                  Icon(Icons.local_hospital),
                   Padding(
                     padding: EdgeInsets.only(left: 10.0),
                     child: Text(categoryName,
@@ -78,6 +90,14 @@ class _SubMethodListItemState extends State<SubMethodListItem> {
     await dbHelper.insert(row);
   }
 
+  void _delete(String name) async {
+    Map<String, dynamic> row = {
+      DatabaseHelper.columnName: name
+    };
+
+    await dbHelper.delete(name);
+  }
+
 
   void _query() async {
     final allRows = await dbHelper.queryAllRows();
@@ -89,15 +109,31 @@ class _SubMethodListItemState extends State<SubMethodListItem> {
         MaterialPageRoute(builder: (context) => MethodPage(categoryName)));
   }
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
   void _onClickFavIcon() {
     setState(() {
-      _favIcon = (_favIcon==Icons.star_border)?Icons.star:Icons.star_border;
+      if(_favIcon==Icons.star_border) {
+        _favIcon = Icons.star;
+        isFav = true;
+        favList.add(SubMethodListItem(categoryName,favList,isFav));
+      } else {
+        _favIcon = Icons.star_border;
+        isFav = false;
+        favList.remove(SubMethodListItem(categoryName, favList,!isFav));
+      }
+
     });
-    if(_favIcon == Icons.star_border){
+    if(!isFav){
       print("remove : " + categoryName);
+      _delete(categoryName);
       // TODO: Means that user wants to remove the item from favourites (which is again the persistent data on user's phone.)
     }
-    else if(_favIcon == Icons.star){
+    else if(isFav){
       print("add : " + categoryName);
       _insert(categoryName);
       // TODO: Add to favourites tab list. (which is a persistent data on user's phones)

@@ -3,14 +3,16 @@ import '../SubMethodsPage.dart';
 
 class ListItem extends StatefulWidget {
   String categoryName;
+  List favList;
 
-  ListItem(String categoryName) {
+  ListItem(String categoryName,List favList) {
     this.categoryName = categoryName;
+    this.favList = favList;
   }
 
   @override
   State<StatefulWidget> createState() {
-    return _ListItemState(categoryName);
+    return _ListItemState(categoryName,favList);
   }
 
 }
@@ -18,9 +20,11 @@ class ListItem extends StatefulWidget {
 class _ListItemState extends State<ListItem> {
   var _color;
   String categoryName;
+  List favList;
 
-  _ListItemState(String categoryName) {
+  _ListItemState(String categoryName,List favList) {
     this.categoryName = categoryName;
+    this.favList = favList;
   }
 
   @override
@@ -37,7 +41,7 @@ class _ListItemState extends State<ListItem> {
                 left: 10.0, top: 10.0, bottom: 10.0, right: 10.0),
             child: Row(
               children: <Widget>[
-                Icon(Icons.access_alarm),
+                Icon(Icons.local_hospital),
                 Padding(
                   padding: EdgeInsets.only(left: 10.0),
                   child: Text(categoryName,
@@ -59,7 +63,7 @@ class _ListItemState extends State<ListItem> {
 
   void _onClickItem(BuildContext context) {
     Navigator.push(context,
-        MaterialPageRoute(builder: (context) => SubMethodsPage(categoryName)));
+        MaterialPageRoute(builder: (context) => SubMethodsPage(categoryName,favList)));
   }
 
 }

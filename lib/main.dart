@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'MethodListTab.dart';
 import 'SearchTab.dart';
 import 'FavouritesTab.dart';
+import 'DatabaseHelper.dart';
+import 'CustomWidgets/SubMethodListItem.dart';
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -27,11 +29,33 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
 
+  final dbHelper = DatabaseHelper.instance;
+  List tempList = new List();
+  static List<SubMethodListItem> favList = new List();
+
+  void _query() async {
+    final allRows = await dbHelper.queryAllRows();
+    allRows.forEach((row) {
+      tempList = row.values.toList();
+      //print(tempList[1]);
+      favList.add(SubMethodListItem(tempList[1],favList,true));
+    });
+
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    favList.clear();
+    _query();
+  }
+
   final _widgetOptions = [
-    new MethodListTab(),
+    new MethodListTab(favList),
     new SearchTab(),
-    new FavouritesTab(),
+    new FavouritesTab(favList),
   ];
+
 
   @override
   Widget build(BuildContext context) {

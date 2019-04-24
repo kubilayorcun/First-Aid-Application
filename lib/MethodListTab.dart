@@ -1,28 +1,38 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import './CustomWidgets/ListItem.dart';
-import 'FirebaseHelper.dart';
 class MethodListTab extends StatelessWidget {
+
+  List favList;
+
+  MethodListTab(List favList) {
+    this.favList = favList;
+  }
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> categories = [
-
-     ListItem("Boğulma"),
-     ListItem("Kanama"),
-     ListItem("Kalp krizi"),
-     ListItem("Kas ve kemik"),
-     ListItem("Suni teneffüs"),
-
-
-    ];
-    FirebaseHelper firebaseHelper = FirebaseHelper();
-    
     return Scaffold(
         appBar: AppBar(
           title: Text("İlk Yardım"),
         ),
         body: Center(
-            child: firebaseHelper.buildBody(context)
+            child: StreamBuilder<QuerySnapshot>(
+              stream: Firestore.instance.collection('CategoryNames').snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return LinearProgressIndicator();
+                print(snapshot.data.documents[2].data.values.toList());
+                return ListView.separated(
+                  padding: EdgeInsets.all(8.0),
+                  itemCount: snapshot.data.documents.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return ListItem(snapshot.data.documents[index].data['Name'],favList);
+                  },
+                  separatorBuilder: (BuildContext context, int index) {
+                    return Divider(color: Colors.black);
+                  },
+                );
+              },
+            )
         )
     );
   }

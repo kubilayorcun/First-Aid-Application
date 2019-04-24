@@ -13,7 +13,12 @@
           "package_name": "com.example.firstaidproject"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "843380948654-6r4b3vub47o1irmrcclm8q9ud6u8dd0t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBWAoUSyANx1rdgxtJcYpKgynuL6Y3EZwQ"

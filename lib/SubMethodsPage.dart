@@ -20,7 +20,6 @@ class SubMethodsPage extends StatefulWidget {
 class _SubMethodsPageState extends State<SubMethodsPage> {
   String categoryName;
   List<SubMethodListItem> favList;
-  List<String> subCategories = ["1. Madde", "2.Madde", "3.Madde"];
 
   _SubMethodsPageState(String categoryName,List<SubMethodListItem> favList) {
     this.favList = favList;
@@ -42,7 +41,7 @@ class _SubMethodsPageState extends State<SubMethodsPage> {
                   padding: EdgeInsets.all(8.0),
                   itemCount: snapshot.data.documents.length,
                   itemBuilder: (BuildContext context, int index) {
-                    return SubMethodListItem(snapshot.data.documents[index].data['Name'],favList,false);
+                    return SubMethodListItem(snapshot.data.documents[index].data['Name'],favList,false,categoryName);
                   },
                   separatorBuilder: (BuildContext context, int index) {
                     return Divider(color: Colors.black);

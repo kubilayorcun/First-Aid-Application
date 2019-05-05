@@ -1,51 +1,92 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'CustomWidgets/SubMethodListItem.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'MethodPage.dart';
 
 class SearchTab extends StatefulWidget {
-  final String title;
+  List<SubMethodListItem> favList;
 
-  SearchTab({Key key, this.title}) : super(key: key);
-  String searchText = "";
+  SearchTab(List<SubMethodListItem> favList) {
+    this.favList = favList;
+  }
+
   Text text;
-  var categories = [Text("some"), Text("some"), Text("some")];
-  final items = List<String>.generate(10000, (i) => "Item $i");
 
   @override
-  SearchTabState createState() => new SearchTabState();
-
+  SearchTabState createState() => new SearchTabState(favList);
 }
 
 class SearchTabState extends State<SearchTab> {
   TextEditingController editingController = new TextEditingController();
+  List<SubMethodListItem> favList;
 
-  final defaultList = List<String>.generate(10000, (i) => "Item $i");
-  var items = List<String>();
+  SearchTabState(List<SubMethodListItem> favList) {
+    this.favList = favList;
+  }
+
+  List<String> defaultList = [];
+  List<String> defaultBaseList = [];
+  List<String> items = List<String>();
+  List<String> baseItems = List<String>();
+
+  Future<void> getAllSubCategories() async {
+    List<String> categoryNames = [];
+
+    await for (var snapshot
+        in Firestore.instance.collection("CategoryNames").snapshots()) {
+      for (var a in snapshot.documents) {
+        categoryNames.add(a.data["Name"]);
+        print(a.data["Name"]);
+      }
+      break;
+    }
+
+    print("mert");
+    for (var a in categoryNames) {
+      await for (var snapshot in Firestore.instance.collection(a).snapshots()) {
+        for (var b in snapshot.documents) {
+          setState(() {
+            defaultList.add(b.data["Name"]);
+            defaultBaseList.add(a);
+            print(b.data["Name"]);
+          });
+        }
+        break;
+      }
+    }
+    setState(() {
+      items.addAll(defaultList);
+      baseItems.addAll(defaultBaseList);
+    });
+  }
 
   @override
   void initState() {
-    items.addAll(defaultList);
+    getAllSubCategories();
     super.initState();
   }
 
-
-  void filterSearchResults(String query){
-    List<String> dummySearchList = List<String>();
-    dummySearchList.addAll(defaultList);
-    if(query.isNotEmpty){
-      List<String> dummyListData = List<String>();
-      dummySearchList.forEach((item){
-        if(item.contains(query)){
-          dummyListData.add(item);
+  void filterSearchResults(String query) {
+    setState(() {
+      items.clear();
+      baseItems.clear();
+    });
+    if (query.isNotEmpty) {
+      for (int i = 0; i < defaultList.length; i++) {
+        if (defaultList[i].contains(query)) {
+          setState(() {
+            items.add(defaultList[i]);
+            baseItems.add(defaultBaseList[i]);
+          });
         }
-      });
-      setState(() {
-        items.clear();
-        items.addAll(dummyListData);
-      });
-      return;
+      }
     } else {
+      print("here");
       setState(() {
-        items.clear();
         items.addAll(defaultList);
+        baseItems.addAll(defaultBaseList);
       });
     }
   }
@@ -65,54 +106,46 @@ class SearchTabState extends State<SearchTab> {
               child: TextField(
                 cursorColor: Colors.red,
                 cursorWidth: 2.0,
-                keyboardType: TextInputType.multiline ,
+                keyboardType: TextInputType.multiline,
                 maxLines: null,
-                style: TextStyle(
-                    fontSize: 17.0,
-                    color: Colors.black
-                ),
+                style: TextStyle(fontSize: 17.0, color: Colors.black),
                 onChanged: (value) {
                   filterSearchResults(value);
                 },
                 controller: editingController,
                 autofocus: true,
                 decoration: InputDecoration(
-                    contentPadding: EdgeInsets.only(top: 8.0,bottom: 8.0, left: 8.0),
+                    contentPadding:
+                        EdgeInsets.only(top: 8.0, bottom: 8.0, left: 8.0),
                     border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(22.0))
-                    ),
+                        borderRadius: BorderRadius.all(Radius.circular(22.0))),
                     hintText: "Search",
                     labelText: "Search",
                     hintStyle: TextStyle(),
-                    prefixIcon: Icon(Icons.search)
-                ),
+                    prefixIcon: Icon(Icons.search)),
               ),
             ),
             Expanded(
-              child:ListView.separated(
-                padding: EdgeInsets.all(8.0),
+              child: ListView.builder(
+                shrinkWrap: true,
                 itemCount: items.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Text(items[index]);
-                },
-                separatorBuilder: (BuildContext context, int index) {
-                  return Divider(color: Colors.black);
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    child: ListTile(title: Text(items[index])),
+                    onTap: () => {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => MethodPage(
+                                      items[index], baseItems[index])))
+                        },
+                  );
                 },
               ),
-            )
+            ),
           ],
         ),
       ),
     );
   }
-
-
-
-
-
 }
-
-
-
-
-

@@ -6,13 +6,14 @@ import 'package:path_provider/path_provider.dart';
 
 class DatabaseHelper {
 
-  static final _databaseName = "Favourites.db";
+  static final _databaseName = "Favourite.db";
   static final _databaseVersion = 1;
 
   static final table = 'favourites';
 
   static final columnId = '_id';
   static final columnName = 'name';
+  static final baseColumnName = 'baseName';
 
 
   // make this a singleton class
@@ -42,7 +43,8 @@ class DatabaseHelper {
     await db.execute('''
           CREATE TABLE IF NOT EXISTS $table (
             $columnId INTEGER PRIMARY KEY,
-            $columnName TEXT NOT NULL
+            $columnName TEXT NOT NULL,
+            $baseColumnName TEXT NOT NULL
           )
           ''');
   }

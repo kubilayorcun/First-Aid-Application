@@ -38,7 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
     allRows.forEach((row) {
       tempList = row.values.toList();
       //print(tempList[1]);
-      favList.add(SubMethodListItem(tempList[1],favList,true));
+      favList.add(SubMethodListItem(tempList[1],favList,true,tempList[2]));
     });
 
   }
@@ -52,7 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   final _widgetOptions = [
     new MethodListTab(favList),
-    new SearchTab(),
+    new SearchTab(favList),
     new FavouritesTab(favList),
   ];
 

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 class MethodPage extends StatefulWidget {
   String appBarTitle;
   String baseCategory;
+
   MethodPage(String appBarTitle, String baseCategory) {
     this.appBarTitle = appBarTitle;
     this.baseCategory = baseCategory;
@@ -11,7 +13,7 @@ class MethodPage extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return new _MethodPageState(appBarTitle,baseCategory);
+    return new _MethodPageState(appBarTitle, baseCategory);
   }
 }
 
@@ -27,17 +29,34 @@ class _MethodPageState extends State<MethodPage> {
   double itemHeight = 25.0;
   double itemsCount = 8;
   double screenWidth;
+  bool isTtsEnabled;
 
-  _MethodPageState(String appBarTitle,  String baseCategory) {
+  List<String> content = [];
+
+  _MethodPageState(String appBarTitle, String baseCategory) {
     this.appBarTitle = appBarTitle;
     this.baseCategory = baseCategory;
+  }
+
+  Future<void> getContent() async {
+    await for (var snapshot in Firestore.instance.collection(baseCategory).document(appBarTitle).snapshots()) {
+      for (var a in snapshot.data["Content"]) {
+        setState(() {
+          content.add(a);
+        });
+        print(a);
+      }
+      break;
+    }
   }
 
   @override
   initState() {
     super.initState();
     initTts();
+    isTtsEnabled = false;
     controller.addListener(onScroll);
+    getContent();
   }
 
   onScroll() {
@@ -65,6 +84,7 @@ class _MethodPageState extends State<MethodPage> {
     flutterTts.setCompletionHandler(() {
       setState(() {
         ttsState = TtsState.stopped;
+        isTtsEnabled = false;
       });
     });
 
@@ -77,11 +97,15 @@ class _MethodPageState extends State<MethodPage> {
 
   void readContent(List content) {
     String strContent = "";
-    for(int i = 0; i < content.length; i++){
+    for (int i = 0; i < content.length; i++) {
       strContent = strContent + content[i];
     }
 
-    _speak(strContent);
+    isTtsEnabled?_stop():_speak(strContent);
+
+    setState(() {
+      isTtsEnabled =! isTtsEnabled;
+    });
   }
 
   Future _speak(String step) async {
@@ -96,18 +120,6 @@ class _MethodPageState extends State<MethodPage> {
 
   @override
   Widget build(BuildContext context) {
-    print(baseCategory);
-    List<String> methodSteps = new List();
-    methodSteps.add("Şimdi hastayı yatar pozisyona getiriniz.");
-    methodSteps.add("Bundan sonra yatar pozisyonda hastayı tedavi etmeye başlayabiliriz.");
-    methodSteps.add("Şimdi ise boğulmakta olan hastaya yetkililer gelene kadar sûni teneffüs yapmaya devam etmelisiniz.");
-    methodSteps.add("Şimdi hastayı yatar pozisyona getiriniz.");
-    methodSteps.add("Bundan sonra yatar pozisyonda hastayı tedavi etmeye başlayabiliriz.");
-    methodSteps.add("Şimdi ise boğulmakta olan hastaya yetkililer gelene kadar sûni teneffüs yapmaya devam etmelisiniz.");
-    methodSteps.add("Şimdi hastayı yatar pozisyona getiriniz.");
-    methodSteps.add("Bundan sonra yatar pozisyonda hastayı tedavi etmeye başlayabiliriz.");
-    methodSteps.add("Şimdi ise boğulmakta olan hastaya yetkililer gelene kadar sûni teneffüs yapmaya devam etmelisiniz.");
-
     screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
@@ -116,36 +128,36 @@ class _MethodPageState extends State<MethodPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Container(
-              height: 12.0,
-              width: cWidth,
-              color: Colors.redAccent
-          ),
+          Container(height: 12.0, width: cWidth, color: Colors.redAccent),
           Expanded(
-              child: StreamBuilder<DocumentSnapshot>(
-                stream: Firestore.instance.collection(baseCategory).document(appBarTitle).snapshots(),
-                builder: (context , snapshot) {
-                  if(!snapshot.hasData) return LinearProgressIndicator();
-                  return ListView.builder(
-                    controller: controller,
-                    itemCount: snapshot.data["Content"].length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text(
-                          "$index - "+ snapshot.data["Content"][index],
-                          style: TextStyle(fontSize: 25.0),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),),
+            child: StreamBuilder<DocumentSnapshot>(
+              stream: Firestore.instance
+                  .collection(baseCategory)
+                  .document(appBarTitle)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return LinearProgressIndicator();
+                return ListView.builder(
+                  controller: controller,
+                  itemCount: snapshot.data["Content"].length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text(
+                        (index+1).toString()+". " + snapshot.data["Content"][index],
+                        style: TextStyle(fontSize: 25.0),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
         ],
       ),
       floatingActionButton: Container(
         child: FloatingActionButton(
-          onPressed: () => readContent(methodSteps),
-          child: Icon(Icons.headset),
+          onPressed: () => readContent(content),
+          child: isTtsEnabled?Icon(Icons.headset_off):Icon(Icons.headset),
           elevation: 20.0,
         ),
         padding: EdgeInsets.only(
@@ -159,11 +171,3 @@ class _MethodPageState extends State<MethodPage> {
     );
   }
 }
-
-/**
- *
-
-
-
-
- * **/

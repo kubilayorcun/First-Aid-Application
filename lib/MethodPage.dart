@@ -157,7 +157,7 @@ class _MethodPageState extends State<MethodPage> {
       floatingActionButton: Container(
         child: FloatingActionButton(
           onPressed: () => readContent(content),
-          child: isTtsEnabled?Icon(Icons.headset_off):Icon(Icons.headset),
+          child: isTtsEnabled?Icon(Icons.stop):Icon(Icons.play_arrow),
           elevation: 20.0,
         ),
         padding: EdgeInsets.only(

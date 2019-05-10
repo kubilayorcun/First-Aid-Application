@@ -73,9 +73,10 @@ class SearchTabState extends State<SearchTab> {
       items.clear();
       baseItems.clear();
     });
+    query = query.toLowerCase();
     if (query.isNotEmpty) {
       for (int i = 0; i < defaultList.length; i++) {
-        if (defaultList[i].contains(query)) {
+        if (defaultList[i].toLowerCase().contains(query)) {
           setState(() {
             items.add(defaultList[i]);
             baseItems.add(defaultBaseList[i]);
@@ -83,7 +84,6 @@ class SearchTabState extends State<SearchTab> {
         }
       }
     } else {
-      print("here");
       setState(() {
         items.addAll(defaultList);
         baseItems.addAll(defaultBaseList);
@@ -95,7 +95,7 @@ class SearchTabState extends State<SearchTab> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Search"),
+        title: Text("Arama"),
       ),
       body: Center(
         child: Column(
@@ -119,19 +119,20 @@ class SearchTabState extends State<SearchTab> {
                         EdgeInsets.only(top: 8.0, bottom: 8.0, left: 8.0),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(22.0))),
-                    hintText: "Search",
-                    labelText: "Search",
+                    hintText: "Ara",
+                    labelText: "Arama",
                     hintStyle: TextStyle(),
                     prefixIcon: Icon(Icons.search)),
               ),
             ),
             Expanded(
-              child: ListView.builder(
+              child: ListView.separated(
+                padding: EdgeInsets.all(8.0),
                 shrinkWrap: true,
                 itemCount: items.length,
                 itemBuilder: (context, index) {
                   return GestureDetector(
-                    child: ListTile(title: Text(items[index])),
+                    child: Container(child: Text(items[index]), padding: EdgeInsets.all(10),),
                     onTap: () => {
                           Navigator.push(
                               context,
@@ -140,6 +141,9 @@ class SearchTabState extends State<SearchTab> {
                                       items[index], baseItems[index])))
                         },
                   );
+                },
+                separatorBuilder: (BuildContext context, int index) {
+                  return Divider(color: Colors.black);
                 },
               ),
             ),

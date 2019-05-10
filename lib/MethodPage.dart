@@ -144,7 +144,7 @@ class _MethodPageState extends State<MethodPage> {
                     return ListTile(
                       title: Text(
                         (index+1).toString()+". " + snapshot.data["Content"][index],
-                        style: TextStyle(fontSize: 25.0),
+                        style: TextStyle(fontSize: 20.0),
                       ),
                     );
                   },

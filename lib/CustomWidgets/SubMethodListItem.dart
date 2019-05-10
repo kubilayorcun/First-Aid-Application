@@ -64,7 +64,7 @@ class _SubMethodListItemState extends State<SubMethodListItem> {
           highlightColor: Colors.red,
           onTap: () => _onClickItem(context),
           child: Padding(
-            padding: const EdgeInsets.only(left: 10.0, top: 0.0, bottom: 5.0, right: 10.0),
+            padding: const EdgeInsets.only(left: 10.0, top: 0.0, bottom: 0.0, right: 10.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[

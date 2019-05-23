@@ -5,7 +5,12 @@ import 'FavouritesTab.dart';
 import 'DatabaseHelper.dart';
 import 'CustomWidgets/SubMethodListItem.dart';
 void main() => runApp(MyApp());
-
+/**
+ * 1-highlight the content that is being read by the tts.
+ * 2-Center the string that is being read by the tts.
+ * 3-Add pictures/pngs to content page.
+ * 4-Update favorites list on delete. (instant rerender)
+ * **/
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

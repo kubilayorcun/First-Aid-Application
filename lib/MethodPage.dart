@@ -24,11 +24,8 @@ class _MethodPageState extends State<MethodPage> {
   String baseCategory;
   FlutterTts flutterTts;
   TtsState ttsState = TtsState.stopped;
-  final controller = ScrollController();
-  double cWidth = 0.0;
-  double itemHeight = 25.0;
-  double itemsCount = 8;
-  double screenWidth;
+  bool isTtsSingleEnabled;
+  int currentIndex=0;
   bool isTtsEnabled;
 
   List<String> content = [];
@@ -39,8 +36,11 @@ class _MethodPageState extends State<MethodPage> {
   }
 
   Future<void> getContent() async {
-    await for (var snapshot in Firestore.instance.collection(baseCategory).document(appBarTitle).snapshots()) {
-      for (var a in snapshot.data["Content"]) {
+    await for (var snapshot in Firestore.instance
+        .collection(baseCategory)
+        .document(appBarTitle)
+        .snapshots()) {
+      for (String a in snapshot.data["Content"]) {
         setState(() {
           content.add(a);
         });
@@ -55,20 +55,9 @@ class _MethodPageState extends State<MethodPage> {
     super.initState();
     initTts();
     isTtsEnabled = false;
-    controller.addListener(onScroll);
+    isTtsSingleEnabled = false;
+    currentIndex = 0;
     getContent();
-  }
-
-  onScroll() {
-    setState(() {
-      cWidth = controller.offset * screenWidth / (itemHeight * itemsCount);
-    });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    controller.removeListener(onScroll);
   }
 
   initTts() {
@@ -95,16 +84,29 @@ class _MethodPageState extends State<MethodPage> {
     });
   }
 
+  void readSingleLine(String line) {
+
+    if(line.startsWith("http")) {
+      setState(() {
+        currentIndex++;
+      });
+      readSingleLine(content[currentIndex]);
+    } else {
+      _stop();
+      _speak(line);
+    }
+  }
+
   void readContent(List content) {
     String strContent = "";
     for (int i = 0; i < content.length; i++) {
       strContent = strContent + content[i];
     }
 
-    isTtsEnabled?_stop():_speak(strContent);
+    isTtsEnabled ? _stop() : _speak(strContent);
 
     setState(() {
-      isTtsEnabled =! isTtsEnabled;
+      isTtsEnabled = !isTtsEnabled;
     });
   }
 
@@ -120,7 +122,6 @@ class _MethodPageState extends State<MethodPage> {
 
   @override
   Widget build(BuildContext context) {
-    screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
         title: Text(appBarTitle),
@@ -128,26 +129,22 @@ class _MethodPageState extends State<MethodPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Container(height: 12.0, width: cWidth, color: Colors.redAccent),
           Expanded(
-            child: StreamBuilder<DocumentSnapshot>(
-              stream: Firestore.instance
-                  .collection(baseCategory)
-                  .document(appBarTitle)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) return LinearProgressIndicator();
-                return ListView.builder(
-                  controller: controller,
-                  itemCount: snapshot.data["Content"].length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(
-                        (index+1).toString()+". " + snapshot.data["Content"][index],
-                        style: TextStyle(fontSize: 20.0),
-                      ),
-                    );
+            child: ListView.builder(
+              itemCount: content.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  onTap: () {
+                    print(index.toString() + "number tapped.");
+                    setState(() {
+                      currentIndex = index;
+                    });
+                    _stop();
+
                   },
+                  title: content[index].startsWith("http")
+                      ? Image.network(content[index])
+                      : Text(content[index], style: TextStyle(fontSize: 20, backgroundColor: (currentIndex==index)?Colors.yellow:Colors.white)),
                 );
               },
             ),
@@ -155,19 +152,55 @@ class _MethodPageState extends State<MethodPage> {
         ],
       ),
       floatingActionButton: Container(
-        child: FloatingActionButton(
-          onPressed: () => readContent(content),
-          child: isTtsEnabled?Icon(Icons.stop):Icon(Icons.play_arrow),
-          elevation: 20.0,
+        child: Row(
+          children: <Widget>[
+            Container(
+              child: FloatingActionButton(
+                heroTag: "1",
+                onPressed: () => readSingleLine(content[currentIndex]),
+                child: Icon(Icons.skip_next),
+                elevation: 20.0,
+              ),
+              padding: EdgeInsets.only(left: 10.0, right: 10.0),
+            ),
+            Container(
+              child: FloatingActionButton(
+                heroTag: "2",
+                onPressed: () {
+                  setState(() {
+                    currentIndex++;
+                  });
+                  readSingleLine(content[currentIndex]);
+                },
+                child: Icon(Icons.navigate_next),
+                elevation: 20.0,
+              ),
+              padding: EdgeInsets.only(left: 10.0, right: 10.0),
+            ),
+            Container(
+              child: FloatingActionButton(
+                heroTag: "3",
+                onPressed: () => readContent(content),
+                child: isTtsEnabled ? Icon(Icons.stop) : Icon(Icons.play_arrow),
+                elevation: 20.0,
+              ),
+              padding: EdgeInsets.only(left: 10.0, right: 10.0),
+            ),
+
+
+          ],
         ),
         padding: EdgeInsets.only(
           bottom: 30.0,
           right: 15.0,
+          left: 20.0,
         ),
         height: 100.0,
-        width: 100.0,
+        width: 280.0,
+
+
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 }

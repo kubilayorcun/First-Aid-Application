@@ -25,7 +25,7 @@ class _MethodPageState extends State<MethodPage> {
   FlutterTts flutterTts;
   TtsState ttsState = TtsState.stopped;
   bool isTtsSingleEnabled;
-  int currentIndex=0;
+  int currentIndex = 0;
   bool isTtsEnabled;
 
   List<String> content = [];
@@ -85,12 +85,31 @@ class _MethodPageState extends State<MethodPage> {
   }
 
   void readSingleLine(String line) {
+    if (isTtsSingleEnabled) {
+      _stop();
+    } else {
+      if (line.startsWith("http")) {
+        setState(() {
+          currentIndex++;
+        });
+        readSingleLine(content[currentIndex]);
+      } else {
+        _stop();
+        _speak(line);
+      }
+    }
 
-    if(line.startsWith("http")) {
+    setState(() {
+      isTtsSingleEnabled = !isTtsSingleEnabled;
+    });
+  }
+
+  void readNext(String line) {
+    if (line.startsWith("http")) {
       setState(() {
         currentIndex++;
       });
-      readSingleLine(content[currentIndex]);
+      readNext(content[currentIndex]);
     } else {
       _stop();
       _speak(line);
@@ -131,21 +150,39 @@ class _MethodPageState extends State<MethodPage> {
         children: <Widget>[
           Expanded(
             child: ListView.builder(
+
               itemCount: content.length,
               itemBuilder: (context, index) {
                 return ListTile(
-                  onTap: () {
-                    print(index.toString() + "number tapped.");
-                    setState(() {
-                      currentIndex = index;
-                    });
-                    _stop();
+                    onTap: () {
+                      print(index.toString() + "number tapped.");
+                      setState(() {
+                        currentIndex = index;
+                        if (isTtsSingleEnabled) {
+                          isTtsSingleEnabled = !isTtsSingleEnabled;
+                        }
+                      });
+                      _stop();
+                    },
+                    title: Container(
+                      
+                      // , backgroundColor: (currentIndex==index)?Color.fromRGBO(255, 128, 128, 1):Colors.white),
+                      decoration: (currentIndex==index)?BoxDecoration(
 
-                  },
-                  title: content[index].startsWith("http")
-                      ? Image.network(content[index])
-                      : Text(content[index], style: TextStyle(fontSize: 20, backgroundColor: (currentIndex==index)?Colors.yellow:Colors.white)),
-                );
+                        borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                          border: Border.all(
+                        color: Colors.redAccent,
+                        style: BorderStyle.solid,
+                        width: 2.0,
+                      )):null,
+                      child: Container(
+                        child: content[index].startsWith("http")
+                            ? Image.network(content[index])
+                            : Text(content[index],
+                                style: TextStyle(fontSize: 20, )),
+                        padding: EdgeInsets.all(10.0),
+                      ),
+                    ));
               },
             ),
           ),
@@ -158,7 +195,9 @@ class _MethodPageState extends State<MethodPage> {
               child: FloatingActionButton(
                 heroTag: "1",
                 onPressed: () => readSingleLine(content[currentIndex]),
-                child: Icon(Icons.skip_next),
+                child: isTtsSingleEnabled
+                    ? Icon(Icons.stop)
+                    : Icon(Icons.skip_next),
                 elevation: 20.0,
               ),
               padding: EdgeInsets.only(left: 10.0, right: 10.0),
@@ -170,7 +209,7 @@ class _MethodPageState extends State<MethodPage> {
                   setState(() {
                     currentIndex++;
                   });
-                  readSingleLine(content[currentIndex]);
+                  readNext(content[currentIndex]);
                 },
                 child: Icon(Icons.navigate_next),
                 elevation: 20.0,
@@ -186,8 +225,6 @@ class _MethodPageState extends State<MethodPage> {
               ),
               padding: EdgeInsets.only(left: 10.0, right: 10.0),
             ),
-
-
           ],
         ),
         padding: EdgeInsets.only(
@@ -197,8 +234,6 @@ class _MethodPageState extends State<MethodPage> {
         ),
         height: 100.0,
         width: 280.0,
-
-
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
